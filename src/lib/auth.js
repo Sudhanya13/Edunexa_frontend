@@ -19,12 +19,14 @@ export const auth = betterAuth({
     client,
   }),
   user: {
-       additionalFields: {
-          role: {
-              type:["admin", "student", "tutor"],
-              input: false
-            } 
-        },
+    additionalFields: {
+      role: {
+        type: "string",
+        input: true,
+        defaultValue: "student",
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
   },
