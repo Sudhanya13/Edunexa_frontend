@@ -1,5 +1,6 @@
 import "./globals.css";
 import SiteChrome from "@/components/ui/shared/SiteChrome";
+import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   title: "Edunexa - Learn without limits",
@@ -11,6 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className="h-full">
       <body className="min-h-full">
         <SiteChrome>{children}</SiteChrome>
+        <Toaster position="top-center" />
       </body>
     </html>
   );
