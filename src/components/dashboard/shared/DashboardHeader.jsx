@@ -1,0 +1,80 @@
+"use client";
+
+import Link from "next/link";
+import { Moon } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+
+const roleHeaderContent = {
+  admin: {
+    workspace: "Platform Admin",
+    account: "Admin account",
+    initials: "A",
+    roleLabel: "Admin",
+  },
+  tutor: {
+    workspace: "Tutor Workspace",
+    account: "Tutor account",
+    initials: "T",
+    roleLabel: "Tutor",
+  },
+  student: {
+    workspace: "Student Workspace",
+    account: "Student account",
+    initials: "S",
+    roleLabel: "Student",
+  },
+};
+
+export default function DashboardHeader({ role = "student" }) {
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+  const sessionRole =
+    typeof user?.role === "string" ? user.role.toLowerCase() : role;
+  const fallbackRole = roleHeaderContent[role] ? role : "student";
+  const currentRole = roleHeaderContent[sessionRole]
+    ? sessionRole
+    : fallbackRole;
+  const { workspace, roleLabel } = roleHeaderContent[currentRole];
+  const account =
+    user?.name || user?.email || `${roleLabel} account`;
+  const initials = (
+    user?.name?.trim()?.charAt(0) ||
+    user?.email?.trim()?.charAt(0) ||
+    roleLabel.charAt(0)
+  ).toUpperCase();
+
+  return (
+    <header className="border-b border-slate-200/80 bg-white">
+      <div className="flex min-h-14 items-center justify-between gap-4 px-5 sm:px-8 lg:px-5">
+        <h1 className="text-[15px] font-bold text-slate-900">{workspace}</h1>
+
+        <div className="flex shrink-0 items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="grid size-9 place-items-center rounded-lg border border-slate-200 text-slate-600"
+          >
+            <Moon className="size-4" />
+          </span>
+          <span className="hidden h-8 border-l border-slate-200 sm:block" />
+          <Link
+            href="/profile"
+            aria-label="View my profile"
+            className="flex items-center gap-2 rounded-full transition hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            <span className="grid size-9 place-items-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+              {initials}
+            </span>
+            <span className="hidden sm:block">
+              <span className="block text-xs font-semibold text-slate-800">
+                {account}
+              </span>
+              <span className="mt-0.5 block text-[10px] text-slate-500">
+                {roleLabel}
+              </span>
+            </span>
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}

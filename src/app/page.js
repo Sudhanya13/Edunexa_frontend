@@ -12,17 +12,12 @@ import {
   Star,
   Users,
 } from "lucide-react";
+import { pricingPlans } from "@/lib/pricing";
 
 const tuitions = [
   { subject: "Mathematics", title: "CBSE Mathematics", location: "Andheri, Mumbai", schedule: "Sat & Tue, 5 PM", level: "Class 10", price: "₹8,500", tutor: "Ms. Nafisa", initials: "MN", color: "bg-violet-100 text-violet-700" },
   { subject: "Science", title: "Class 9 Science", location: "Bandra, Mumbai", schedule: "Sun & Thu, 4 PM", level: "Class 9", price: "₹6,000", tutor: "Mr. Rahim", initials: "AR", color: "bg-emerald-100 text-emerald-700" },
   { subject: "English", title: "IELTS Preparation", location: "Online", schedule: "Fri, 7 PM", level: "All Levels", price: "₹12,000", tutor: "Sarah Khan", initials: "SK", color: "bg-amber-100 text-amber-700" },
-];
-
-const plans = [
-  { name: "Starter", price: "Free", description: "For students exploring their options", features: ["Browse all tuition listings", "Create one learning profile", "Basic tutor search"], featured: false },
-  { name: "Pro Student", price: "₹499", description: "For focused, faster learning", features: ["Unlimited tutor requests", "Verified tutor profiles", "Priority placement", "Learning activity tracking"], featured: true },
-  { name: "Pro Tutor", price: "₹799", description: "For educators growing their reach", features: ["Featured tutor profile", "Unlimited tuition applications", "Lead management tools", "Pro performance insights"], featured: false },
 ];
 
 export default function Home() {
@@ -148,18 +143,42 @@ export default function Home() {
       <section className="bg-white py-20">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="mx-auto max-w-2xl text-center"><p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-600">Plans for every goal</p><h2 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">Simple, transparent pricing</h2></div>
-          <div className="mt-10 grid items-stretch gap-5 md:grid-cols-3">
-            {plans.map((plan) => (
-              <article key={plan.name} className={`relative rounded-3xl p-7 ${plan.featured ? "bg-indigo-600 text-white shadow-2xl shadow-indigo-200" : "border border-slate-200 bg-white text-slate-900"}`}>
-                {plan.featured && <span className="absolute right-5 top-5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wider">Most popular</span>}
-                <h3 className="text-lg font-black">{plan.name}</h3><p className={`mt-2 text-sm ${plan.featured ? "text-indigo-100" : "text-slate-500"}`}>{plan.description}</p>
-                <p className="mt-6 text-4xl font-black">{plan.price}<span className={`text-sm font-medium ${plan.featured ? "text-indigo-200" : "text-slate-400"}`}>{plan.price === "Free" ? "" : "/month"}</span></p>
-                <ul className="mt-6 space-y-3">
-                  {plan.features.map((feature) => <li key={feature} className="flex items-center gap-2.5 text-sm"><BadgeCheck className={`size-4 shrink-0 ${plan.featured ? "text-indigo-200" : "text-indigo-600"}`} />{feature}</li>)}
-                </ul>
-                <Link href="/signup" className={`mt-7 flex h-11 items-center justify-center rounded-xl text-sm font-bold ${plan.featured ? "bg-white text-indigo-600" : "bg-slate-950 text-white"}`}>Get Started</Link>
-              </article>
-            ))}
+          <div className="mx-auto mt-10 grid max-w-4xl items-stretch gap-5 md:grid-cols-2">
+            <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 text-slate-900 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70">
+              <div aria-hidden="true" className="absolute -right-14 -top-16 size-40 rounded-full bg-slate-100 transition group-hover:scale-110" />
+              <div className="relative flex items-center justify-between gap-3">
+                <span className="grid size-11 place-items-center rounded-2xl bg-slate-100 text-indigo-600"><BookOpen className="size-5" /></span>
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600">{pricingPlans.starter.badge}</span>
+              </div>
+              <h3 className="relative mt-5 text-lg font-black">{pricingPlans.starter.name}</h3>
+              <p className="relative mt-2 min-h-10 text-sm leading-6 text-slate-500">{pricingPlans.starter.description}</p>
+              <div className="relative mt-5 rounded-2xl bg-slate-50 px-4 py-3">
+                <p className="text-4xl font-black text-slate-950">{pricingPlans.starter.price}<span className="ml-1 text-sm font-medium text-slate-400">{pricingPlans.starter.billing}</span></p>
+              </div>
+              <ul className="mt-6 flex-1 space-y-3">
+                {pricingPlans.starter.features.map((feature) => <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-600"><BadgeCheck className="mt-0.5 size-4 shrink-0 text-indigo-600" />{feature}</li>)}
+              </ul>
+              <Link href="/signup" className="mt-7 flex h-12 items-center justify-center rounded-xl border border-slate-300 text-sm font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50/50">Get Started Free</Link>
+            </article>
+            <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-indigo-300 bg-white p-7 text-slate-900 shadow-xl shadow-indigo-100 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-200/70">
+              <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-600" />
+              <div aria-hidden="true" className="absolute -right-16 -top-16 size-44 rounded-full bg-indigo-50 transition group-hover:scale-110" />
+              <span className="relative inline-flex w-fit items-center gap-1.5 rounded-full bg-indigo-600 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white"><Sparkles className="size-3.5" />Recommended</span>
+              <div className="relative mt-4 flex items-center justify-between gap-3">
+                <span className="grid size-11 place-items-center rounded-2xl bg-indigo-100 text-indigo-700"><Sparkles className="size-5" /></span>
+                <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-[11px] font-bold text-indigo-700">PRO Badge</span>
+              </div>
+              <h3 className="relative mt-5 text-lg font-black">{pricingPlans.pro.name}</h3>
+              <p className="relative mt-2 min-h-10 text-sm leading-6 text-slate-500">{pricingPlans.pro.description}</p>
+              <div className="relative mt-5 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl bg-indigo-50 px-4 py-3"><p className="text-3xl font-black text-indigo-700">{pricingPlans.pro.tutorPrice}</p><p className="mt-1 text-xs font-medium text-slate-500">per month · Tutors</p></div>
+                <div className="rounded-2xl border border-indigo-100 px-4 py-3"><p className="text-3xl font-black text-slate-950">{pricingPlans.pro.studentPrice}</p><p className="mt-1 text-xs font-medium text-slate-500">per month · Students</p></div>
+              </div>
+              <ul className="mt-6 flex-1 space-y-3">
+                {pricingPlans.pro.features.map((feature) => <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-600"><BadgeCheck className="mt-0.5 size-4 shrink-0 text-indigo-600" />{feature}</li>)}
+              </ul>
+              <Link href="/signup" className="mt-7 flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700">Upgrade to Pro <ArrowRight className="size-4" /></Link>
+            </article>
           </div>
         </div>
       </section>
