@@ -57,11 +57,11 @@ export default function TuitionDetailsPage() {
       try {
         setLoading(true);
 
-        const apiUrl = (
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-        ).replace(/\/$/, "");
+        // const apiUrl = (
+        //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+        // ).replace(/\/$/, "");
 
-        const res = await fetch(`${apiUrl}/all-tuitions/${id}`);
+        const res = await fetch(`http://localhost:5000/all-tuitions/${id}`);
 
         if (!res.ok) {
           throw new Error("Failed to fetch tuition details");
@@ -112,14 +112,11 @@ export default function TuitionDetailsPage() {
         status: "Pending",
       };
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || ""}/applications`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const res = await fetch("http://localhost:5000/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       if (!res.ok) {
         const errData = await res.json();
@@ -486,7 +483,9 @@ export default function TuitionDetailsPage() {
                 <>
                   <button
                     onClick={() =>
-                      router.push(`/login?callbackUrl=/tuitions/${id}`)
+                      router.push(
+                        `/signin?callbackUrl=${encodeURIComponent(`/tuitions/${id}`)}`,
+                      )
                     }
                     className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition cursor-pointer shadow-lg shadow-indigo-500/20"
                   >
