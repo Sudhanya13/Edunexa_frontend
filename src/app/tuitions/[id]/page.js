@@ -81,6 +81,35 @@ export default function TuitionDetailsPage() {
     fetchTuitionDetails();
   }, [id]);
 
+  // Check whether the logged-in student has already applied
+  useEffect(() => {
+    if (isSessionLoading || !user?.id || !id) return;
+
+    if (userRole !== "student") {
+      setHasApplied(false);
+      return;
+    }
+
+    const checkApplication = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/applications/check/${user.id}/${id}`,
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to check application");
+        }
+
+        const data = await res.json();
+        setHasApplied(data.hasApplied);
+      } catch (error) {
+        console.error("Application check error:", error);
+      }
+    };
+
+    checkApplication();
+  }, [user?.id, userRole, id, isSessionLoading]);
+
   // Share link handler
   const handleShare = () => {
     if (typeof window !== "undefined") {
