@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Moon } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
 const roleHeaderContent = {
   admin: {
-    workspace: "Platform Admin",
+    workspace: "Admin Workspace",
     account: "Admin account",
     initials: "A",
     roleLabel: "Admin",
@@ -49,13 +48,6 @@ export default function DashboardHeader({ role = "student" }) {
         <h1 className="text-[15px] font-bold text-slate-900">{workspace}</h1>
 
         <div className="flex shrink-0 items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="grid size-9 place-items-center rounded-lg border border-slate-200 text-slate-600"
-          >
-            <Moon className="size-4" />
-          </span>
-          <span className="hidden h-8 border-l border-slate-200 sm:block" />
           <Link
             href="/profile"
             aria-label="View my profile"
@@ -64,13 +56,8 @@ export default function DashboardHeader({ role = "student" }) {
             <span className="grid size-9 place-items-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
               {initials}
             </span>
-            <span className="hidden sm:block">
-              <span className="block text-xs font-semibold text-slate-800">
-                {account}
-              </span>
-              <span className="mt-0.5 block text-[10px] text-slate-500">
-                {roleLabel}
-              </span>
+            <span className="hidden text-xs font-semibold text-slate-800 sm:block">
+              {account}
             </span>
           </Link>
         </div>
