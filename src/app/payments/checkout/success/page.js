@@ -145,7 +145,7 @@ export const metadata = {
 //   );
 // }
 export default async function CheckoutSuccessPage({ searchParams }) {
-  const { session_id: sessionId } = await searchParams;
+  const { session_id: sessionId, confirmed } = await searchParams;
 
   // Confirm that the user is logged in
   const authSession = await auth.api.getSession({
@@ -158,6 +158,12 @@ export default async function CheckoutSuccessPage({ searchParams }) {
 
   if (!sessionId) {
     redirect("/payments/checkout");
+  }
+
+  if (confirmed !== "1") {
+    redirect(
+      `/api/checkout_sessions/confirm?session_id=${encodeURIComponent(sessionId)}`,
+    );
   }
 
   // Retrieve the actual Stripe Checkout Session

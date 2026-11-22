@@ -95,7 +95,6 @@ export default async function CheckoutPage() {
                 ))}
               </ul>
             </div>
-
           </section>
 
           <aside className="h-fit rounded-3xl border border-indigo-200 bg-white p-6 shadow-lg shadow-indigo-100/60 sm:p-8">

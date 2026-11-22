@@ -39,7 +39,7 @@
 // //         setLoading(true);
 
 // //         const apiUrl = (
-// //           process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+// //           process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app"
 // //         ).replace(/\/$/, "");
 
 // //         const res = await fetch(`${apiUrl}/applications/student/${user.id}`);
@@ -181,7 +181,7 @@
 //         setError(false);
 
 //         const apiUrl = (
-//           process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+//           process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app"
 //         ).replace(/\/$/, "");
 
 //         const res = await fetch(`${apiUrl}/applications/student/${user.id}`);
@@ -346,7 +346,7 @@ export default function StudentApplicationsPage() {
         setError(false);
 
         const apiUrl = (
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app"
         ).replace(/\/$/, "");
 
         const res = await fetch(`${apiUrl}/applications/student/${user.id}`);

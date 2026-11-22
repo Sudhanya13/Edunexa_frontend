@@ -26,7 +26,7 @@
 
 // //   // If the backend returns a relative path like "/uploads/math.jpg", point to API server
 // //   if (trimmed.startsWith("/") && !trimmed.startsWith("/images/")) {
-// //     return `http://localhost:5000${trimmed}`;
+// //     return `https://edunexa-server.vercel.app${trimmed}`;
 // //   }
 
 // //   return trimmed;
@@ -169,7 +169,7 @@
 //   if (!trimmed) return "";
 
 //   if (trimmed.startsWith("/")) {
-//     return `http://localhost:5000${trimmed}`;
+//     return `https://edunexa-server.vercel.app${trimmed}`;
 //   }
 
 //   return trimmed;

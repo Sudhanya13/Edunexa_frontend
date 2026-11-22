@@ -48,7 +48,7 @@ export default function TuitionDetailsPage() {
     const checkBookmark = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/saved-tuitions/student/${user.id}`,
+          `https://edunexa-server.vercel.app/saved-tuitions/student/${user.id}`,
         );
 
         if (!res.ok) {
@@ -90,10 +90,12 @@ export default function TuitionDetailsPage() {
         setLoading(true);
 
         // const apiUrl = (
-        //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+        //   process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app"
         // ).replace(/\/$/, "");
 
-        const res = await fetch(`http://localhost:5000/all-tuitions/${id}`);
+        const res = await fetch(
+          `https://edunexa-server.vercel.app/all-tuitions/${id}`,
+        );
 
         if (!res.ok) {
           throw new Error("Failed to fetch tuition details");
@@ -125,7 +127,7 @@ export default function TuitionDetailsPage() {
     const checkApplication = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/applications/check/${user.id}/${id}`,
+          `https://edunexa-server.vercel.app/applications/check/${user.id}/${id}`,
         );
 
         if (!res.ok) {
@@ -155,7 +157,7 @@ export default function TuitionDetailsPage() {
       // Remove bookmark
       if (isBookmarked) {
         const res = await fetch(
-          `http://localhost:5000/saved-tuitions/${user.id}/${id}`,
+          `https://edunexa-server.vercel.app/saved-tuitions/${user.id}/${id}`,
           {
             method: "DELETE",
           },
@@ -175,25 +177,27 @@ export default function TuitionDetailsPage() {
       }
 
       // Add bookmark
-      const res = await fetch("http://localhost:5000/saved-tuitions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        "https://edunexa-server.vercel.app/saved-tuitions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            studentId: user.id,
+            studentEmail: user.email,
+            tuitionId: id,
+          }),
         },
-        body: JSON.stringify({
-          studentId: user.id,
-          studentEmail: user.email,
-          tuitionId: id,
-        }),
-      });
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
         const errorMessage = data?.message || data?.error || "";
         const isBookmarkLimit =
-          String(data?.code || "").toUpperCase() ===
-            "BOOKMARK_LIMIT_REACHED" ||
+          String(data?.code || "").toUpperCase() === "BOOKMARK_LIMIT_REACHED" ||
           /\b(bookmark|saved tuitions?)\b.*\b(limit|maximum|5)\b|\b(limit|maximum|5)\b.*\b(bookmark|saved tuitions?)\b|free.{0,40}(save|bookmark)/i.test(
             errorMessage,
           );
@@ -251,11 +255,14 @@ export default function TuitionDetailsPage() {
         status: "Pending",
       };
 
-      const res = await fetch("http://localhost:5000/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        "https://edunexa-server.vercel.app/applications",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
 
       if (!res.ok) {
         const errData = await res.json();

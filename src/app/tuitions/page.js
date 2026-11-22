@@ -3,9 +3,12 @@ import { ArrowLeft } from "lucide-react";
 import TuitionsBrowser from "@/components/TuitionsBrowser";
 
 export default async function TuitionsPage() {
-  const response = await fetch("http://localhost:5000/all-tuitions", {
-    cache: "no-store",
-  });
+  const response = await fetch(
+    "https://edunexa-server.vercel.app/all-tuitions",
+    {
+      cache: "no-store",
+    },
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch tuition listings");

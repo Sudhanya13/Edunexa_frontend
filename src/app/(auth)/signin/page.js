@@ -47,7 +47,8 @@ export default function SignInPage() {
 
       if (data) {
         toast.success("Welcome back!");
-        router.push("/");
+        router.push("/dashboard");
+        router.refresh();
       }
     } catch (err) {
       console.error("Sign in error:", err);
@@ -59,7 +60,7 @@ export default function SignInPage() {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      await authClient.signIn.social({ provider: "google", callbackURL: "/" });
+      await authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" });
     } catch (error) {
       console.error("Google login error:", error);
       toast.error("Could not sign in with Google.");

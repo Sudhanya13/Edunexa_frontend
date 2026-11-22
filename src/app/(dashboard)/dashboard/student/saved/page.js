@@ -31,7 +31,7 @@ export default function SavedTuitionsPage() {
       setLoading(true);
 
       const res = await fetch(
-        `http://localhost:5000/saved-tuitions/student/${user.id}`,
+        `https://edunexa-server.vercel.app/saved-tuitions/student/${user.id}`,
       );
 
       const data = await res.json();
@@ -69,7 +69,7 @@ export default function SavedTuitionsPage() {
       setRemovingId(tuitionId);
 
       const res = await fetch(
-        `http://localhost:5000/saved-tuitions/${user.id}/${tuitionId}`,
+        `https://edunexa-server.vercel.app/saved-tuitions/${user.id}/${tuitionId}`,
         {
           method: "DELETE",
         },

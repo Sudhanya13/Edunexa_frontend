@@ -101,6 +101,7 @@ export async function GET(request) {
 
     const successUrl = new URL("/payments/checkout/success", request.url);
     successUrl.searchParams.set("session_id", checkoutSession.id);
+    successUrl.searchParams.set("confirmed", "1");
     return NextResponse.redirect(successUrl, 303);
   } catch (error) {
     console.error("Failed to confirm Stripe Checkout Session.", error);

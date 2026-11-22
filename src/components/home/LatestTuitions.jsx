@@ -4,9 +4,12 @@ import React from "react";
 import Tuitioncard from "../Tuitioncard";
 
 export default async function LatestTuitions() {
-  const response = await fetch("http://localhost:5000/all-tuitions/latest", {
-    cache: "no-store",
-  });
+  const response = await fetch(
+    "https://edunexa-server.vercel.app/all-tuitions/latest",
+    {
+      cache: "no-store",
+    },
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch tuitions");
   }

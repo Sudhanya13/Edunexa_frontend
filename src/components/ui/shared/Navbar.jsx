@@ -21,10 +21,11 @@ export default function Navbar({ isAuthenticated = false, user = null }) {
   const router = useRouter();
 
   const { data: session } = authClient.useSession();
-  console.log({ user: session?.user });
-
   const currentUser = session?.user ?? user;
   const authenticated = Boolean(session?.user) || isAuthenticated;
+  const roleLabel = currentUser?.role
+    ? currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1).toLowerCase()
+    : "Student";
 
   // Close dropdown on outside click or Escape key
   useEffect(() => {
@@ -139,7 +140,7 @@ export default function Navbar({ isAuthenticated = false, user = null }) {
                     {currentUser?.name || "User"}
                   </p>
                   <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-indigo-600">
-                    {currentUser?.role || "Student"}
+                    {roleLabel}
                   </p>
                 </div>
                 <ChevronDown
