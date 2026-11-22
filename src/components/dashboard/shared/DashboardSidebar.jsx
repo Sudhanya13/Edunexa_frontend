@@ -86,6 +86,7 @@ export default function DashboardSidebar({ role = "student" }) {
   const roleTitle = role.charAt(0).toUpperCase() + role.slice(1);
   const displayName = user?.name || user?.email || `${roleTitle} account`;
   const initials = displayName.trim().charAt(0).toUpperCase();
+  const isPro = user?.plan?.toLowerCase() === "pro";
 
   return (
     <aside
@@ -119,19 +120,28 @@ export default function DashboardSidebar({ role = "student" }) {
               <p className="truncate text-sm font-semibold text-slate-900">
                 {displayName}
               </p>
-              {role === "tutor" && (
+              {role === "tutor" && isPro && (
                 <span className="rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-600">
                   PRO
                 </span>
               )}
             </div>
             {role === "tutor" ? (
-              <span className="mt-1 inline-flex rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-700">
-                Tutor
-              </span>
+              <div className="mt-1 flex items-center gap-1.5">
+                <span className="inline-flex rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-700">
+                  Tutor
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  {isPro ? "Pro plan" : "Free plan"}
+                </span>
+              </div>
             ) : (
               <p className="mt-0.5 text-xs text-slate-500">
-                {role === "student" ? "Free plan" : `${roleTitle} workspace`}
+                {role === "student"
+                  ? isPro
+                    ? "Pro plan"
+                    : "Free plan"
+                  : `${roleTitle} workspace`}
               </p>
             )}
           </div>

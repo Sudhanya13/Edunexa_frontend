@@ -1,3 +1,6 @@
+"use client";
+
+import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -56,32 +59,32 @@ const overviewContent = {
     stats: [
       {
         label: "Total Tuitions",
-        value: "12",
-        badge: "∞ Pro",
-        note: "Unlimited posts unlocked",
+        value: "—",
+        badge: "Free plan",
+        note: "Up to 2 posts on the Free plan",
         icon: BookOpenCheck,
         tone: "indigo",
       },
       {
         label: "Active & Approved",
-        value: "11",
+        value: "—",
         note: "Publicly listed and accepting students",
         icon: CheckCircle2,
         tone: "indigo",
       },
       {
         label: "Total Applicants",
-        value: "7",
+        value: "—",
         note: "Interested students applied across all posts",
         icon: Users,
         tone: "indigo",
       },
       {
         label: "Current Plan",
-        value: "PRO",
-        note: "Priority listing in searches",
+        value: "FREE",
+        note: "Upgrade for priority listing",
         icon: Crown,
-        tone: "amber",
+        tone: "indigo",
       },
     ],
     sectionTitle: "Tutor Controls",
@@ -148,9 +151,37 @@ const overviewContent = {
 };
 
 export default function DashboardOverview({ role, userName }) {
+  const { data: session } = authClient.useSession();
   const content = overviewContent[role] || overviewContent.student;
   const PrimaryIcon = content.primaryAction.icon;
   const isTutor = role === "tutor";
+  const isPro = session?.user?.plan?.toLowerCase() === "pro";
+  const stats = isTutor
+    ? content.stats.map((stat) => {
+        if (stat.label === "Total Tuitions") {
+          return {
+            ...stat,
+            badge: isPro ? "∞ Pro" : "Free plan",
+            note: isPro
+              ? "Unlimited posts unlocked"
+              : "Up to 2 posts on the Free plan",
+          };
+        }
+
+        if (stat.label === "Current Plan") {
+          return {
+            ...stat,
+            value: isPro ? "PRO" : "FREE",
+            note: isPro
+              ? "Priority listing in searches"
+              : "Upgrade for priority listing",
+            tone: isPro ? "amber" : "indigo",
+          };
+        }
+
+        return stat;
+      })
+    : content.stats;
 
   return (
     <div className="space-y-7">
@@ -178,7 +209,7 @@ export default function DashboardOverview({ role, userName }) {
         aria-label="Dashboard overview"
         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
-        {content.stats.map(({ label, value, badge, note, icon: Icon, tone }) => (
+        {stats.map(({ label, value, badge, note, icon: Icon, tone }) => (
           <article
             key={label}
             className={`rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-200/30 ${

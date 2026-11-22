@@ -27,12 +27,7 @@ const roleHeaderContent = {
 export default function DashboardHeader({ role = "student" }) {
   const { data: session } = authClient.useSession();
   const user = session?.user;
-  const sessionRole =
-    typeof user?.role === "string" ? user.role.toLowerCase() : role;
-  const fallbackRole = roleHeaderContent[role] ? role : "student";
-  const currentRole = roleHeaderContent[sessionRole]
-    ? sessionRole
-    : fallbackRole;
+  const currentRole = roleHeaderContent[role] ? role : "student";
   const { workspace, roleLabel } = roleHeaderContent[currentRole];
   const account =
     user?.name || user?.email || `${roleLabel} account`;

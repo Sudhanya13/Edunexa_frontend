@@ -22,8 +22,24 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        input: true,
+        input: false,
         defaultValue: "student",
+      },
+
+      plan: {
+        type: "string",
+        input: false,
+        defaultValue: "free",
+      },
+      subscriptionStatus: {
+        type: "string",
+        input: false,
+        defaultValue: "inactive",
+      },
+      bookmarksLimit: {
+        type: "number",
+        input: false,
+        defaultValue: 5,
       },
     },
   },

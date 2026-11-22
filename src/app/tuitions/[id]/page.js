@@ -190,7 +190,24 @@ export default function TuitionDetailsPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to save tuition");
+        const errorMessage = data?.message || data?.error || "";
+        const isBookmarkLimit =
+          String(data?.code || "").toUpperCase() ===
+            "BOOKMARK_LIMIT_REACHED" ||
+          /\b(bookmark|saved tuitions?)\b.*\b(limit|maximum|5)\b|\b(limit|maximum|5)\b.*\b(bookmark|saved tuitions?)\b|free.{0,40}(save|bookmark)/i.test(
+            errorMessage,
+          );
+
+        if (isBookmarkLimit) {
+          toast.error(
+            "Free students can save only 5 tuitions. Upgrade to Pro for unlimited bookmarks.",
+            { duration: 2500 },
+          );
+          window.setTimeout(() => router.push("/pricing"), 1500);
+          return;
+        }
+
+        throw new Error(errorMessage || "Failed to save tuition");
       }
 
       setIsBookmarked(true);
