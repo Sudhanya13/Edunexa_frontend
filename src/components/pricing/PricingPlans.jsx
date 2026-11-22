@@ -151,7 +151,7 @@ export default function PricingPlans() {
             ))}
           </ul>
           <Link
-            href="/signup"
+            href={`/payments/checkout?role=${audience}`}
             className="mt-7 flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700"
           >
             Upgrade to Pro
