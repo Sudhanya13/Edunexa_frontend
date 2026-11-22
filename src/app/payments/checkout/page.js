@@ -1,17 +1,30 @@
 import Link from "next/link";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import {
   ArrowLeft,
   BadgeCheck,
   CheckCircle2,
-  CreditCard,
   LockKeyhole,
   Sparkles,
 } from "lucide-react";
 import { pricingPlansByRole } from "@/lib/pricing";
+import { auth } from "@/lib/auth";
 
-export default async function CheckoutPage({ searchParams }) {
-  const { role: requestedRole } = await searchParams;
-  const role = requestedRole === "student" ? "student" : "tutor";
+export default async function CheckoutPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/signin");
+  }
+
+  const role = session.user.role?.toLowerCase();
+  if (role !== "student" && role !== "tutor") {
+    redirect("/dashboard");
+  }
+
   const plan = pricingPlansByRole[role].pro;
   const audienceLabel = role === "student" ? "Student" : "Tutor";
 
@@ -83,23 +96,6 @@ export default async function CheckoutPage({ searchParams }) {
               </ul>
             </div>
 
-            <div className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <div className="flex items-start gap-3">
-                <CreditCard
-                  aria-hidden="true"
-                  className="mt-0.5 size-5 shrink-0 text-amber-700"
-                />
-                <div>
-                  <p className="text-sm font-bold text-amber-900">
-                    Payments aren&apos;t available yet
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-amber-800">
-                    Checkout is not configured, so you won&apos;t be charged and
-                    your account won&apos;t be upgraded from this page yet.
-                  </p>
-                </div>
-              </div>
-            </div>
           </section>
 
           <aside className="h-fit rounded-3xl border border-indigo-200 bg-white p-6 shadow-lg shadow-indigo-100/60 sm:p-8">
@@ -133,15 +129,16 @@ export default async function CheckoutPage({ searchParams }) {
               </span>
             </div>
 
-            <button
-              type="button"
-              disabled
-              className="flex h-12 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-4 text-sm font-bold text-slate-500"
-            >
-              Continue to payment
-            </button>
+            <form action="/api/checkout_sessions" method="POST">
+              <button
+                type="submit"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Continue to payment
+              </button>
+            </form>
             <p className="mt-3 text-center text-xs leading-5 text-slate-500">
-              Payment will be enabled once checkout is set up.
+              You&apos;ll be redirected to Stripe&apos;s secure checkout.
             </p>
 
             <Link
