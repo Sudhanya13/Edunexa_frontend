@@ -30,14 +30,25 @@ export async function POST(request) {
     const origin = new URL(request.url).origin;
 
     const checkoutSession = await stripe.checkout.sessions.create({
+      client_reference_id: authSession.user.id,
       line_items: [
         {
           price: priceId,
           quantity: 1,
         },
       ],
+      metadata: {
+        userId: authSession.user.id,
+        role,
+      },
       mode: "subscription",
-      success_url: `${origin}/payments/checkout/success?role=${role}&session_id={CHECKOUT_SESSION_ID}`,
+      subscription_data: {
+        metadata: {
+          userId: authSession.user.id,
+          role,
+        },
+      },
+      success_url: `${origin}/api/checkout_sessions/confirm?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/payments/checkout/cancel?role=${role}`,
     });
     return NextResponse.redirect(checkoutSession.url, 303);

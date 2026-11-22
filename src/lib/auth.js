@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
 const client = new MongoClient(process.env.MONGO_URI);
-const db = client.db("Edunexa");
+export const db = client.db("Edunexa");
 
 // export const auth = betterAuth({
 //   emailAndPassword: {
@@ -35,6 +35,16 @@ export const auth = betterAuth({
         type: "string",
         input: false,
         defaultValue: "inactive",
+      },
+      stripeCustomerId: {
+        type: "string",
+        input: false,
+        returned: false,
+      },
+      stripeSubscriptionId: {
+        type: "string",
+        input: false,
+        returned: false,
       },
       bookmarksLimit: {
         type: "number",
