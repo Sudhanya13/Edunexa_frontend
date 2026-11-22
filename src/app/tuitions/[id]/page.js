@@ -38,6 +38,38 @@ export default function TuitionDetailsPage() {
   const [tuition, setTuition] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [savingBookmark, setSavingBookmark] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
+  useEffect(() => {
+    if (isSessionLoading || !user?.id || userRole !== "student" || !id) {
+      return;
+    }
+
+    const checkBookmark = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/saved-tuitions/student/${user.id}`,
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch saved tuitions");
+        }
+
+        const data = await res.json();
+        const saved = data.savedTuitions || [];
+
+        setIsBookmarked(
+          saved.some((item) => String(item.tuitionId) === String(id)),
+        );
+
+        setSavedCount(data.count || 0);
+      } catch (error) {
+        console.error("Bookmark check error:", error);
+      }
+    };
+
+    checkBookmark();
+  }, [user?.id, userRole, id, isSessionLoading]);
 
   // Apply Modal state
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
@@ -110,6 +142,67 @@ export default function TuitionDetailsPage() {
     checkApplication();
   }, [user?.id, userRole, id, isSessionLoading]);
 
+  // Save or remove tuition bookmark
+  const handleBookmark = async () => {
+    if (!user || userRole !== "student") {
+      toast.error("Please sign in as a student to save tuitions.");
+      return;
+    }
+
+    try {
+      setSavingBookmark(true);
+
+      // Remove bookmark
+      if (isBookmarked) {
+        const res = await fetch(
+          `http://localhost:5000/saved-tuitions/${user.id}/${id}`,
+          {
+            method: "DELETE",
+          },
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to remove bookmark");
+        }
+
+        setIsBookmarked(false);
+        setSavedCount((prev) => Math.max(0, prev - 1));
+
+        toast.success("Removed from saved tuitions!");
+        return;
+      }
+
+      // Add bookmark
+      const res = await fetch("http://localhost:5000/saved-tuitions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          studentId: user.id,
+          studentEmail: user.email,
+          tuitionId: id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to save tuition");
+      }
+
+      setIsBookmarked(true);
+      setSavedCount(data.count ?? savedCount + 1);
+
+      toast.success("Tuition added to saved list!");
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setSavingBookmark(false);
+    }
+  };
   // Share link handler
   const handleShare = () => {
     if (typeof window !== "undefined") {
@@ -255,7 +348,7 @@ export default function TuitionDetailsPage() {
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
-                <button
+                {/* <button
                   onClick={() => {
                     setIsBookmarked(!isBookmarked);
                     toast.success(
@@ -272,6 +365,28 @@ export default function TuitionDetailsPage() {
                   }`}
                 >
                   <Bookmark className="w-4 h-4" />
+                </button> */}
+                <button
+                  onClick={handleBookmark}
+                  disabled={savingBookmark || isSessionLoading}
+                  title={
+                    isBookmarked ? "Remove from Saved Tuitions" : "Save Tuition"
+                  }
+                  className={`p-2.5 rounded-full border backdrop-blur-md transition ${
+                    isBookmarked
+                      ? "bg-indigo-50 border-indigo-200 text-indigo-700"
+                      : "bg-white/95 hover:bg-indigo-50 text-slate-700 border-slate-200"
+                  } disabled:opacity-50`}
+                >
+                  {savingBookmark ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Bookmark
+                      className={`w-4 h-4 ${
+                        isBookmarked ? "fill-indigo-600" : ""
+                      }`}
+                    />
+                  )}
                 </button>
               </div>
             </div>
