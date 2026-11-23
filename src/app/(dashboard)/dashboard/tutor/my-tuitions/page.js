@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import {
   BookOpen,
   Edit,
@@ -72,10 +72,21 @@ export default function MyTuitionsPage() {
     if (!userEmail) return;
 
     try {
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/tuitions/my?email=${encodeURIComponent(userEmail)}`,
         {
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`,
+          },
         },
       );
 
@@ -156,10 +167,21 @@ export default function MyTuitionsPage() {
       setSaving(true);
       setError("");
 
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
       const response = await fetch(`${API_URL}/tuitions/${editing._id}`, {
         method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenData.token}`,
+        },
         body: JSON.stringify({
           ...form,
           monthlyFee: Number(form.monthlyFee),
@@ -193,9 +215,20 @@ export default function MyTuitionsPage() {
     try {
       setError("");
 
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
       const response = await fetch(`${API_URL}/tuitions/${id}`, {
         method: "DELETE",
-        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${tokenData.token}`,
+        },
       });
 
       const data = await response.json();
@@ -216,12 +249,23 @@ export default function MyTuitionsPage() {
     try {
       setError("");
 
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/tuitions/${tuition._id}/status`,
         {
           method: "PATCH",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
+          },
           body: JSON.stringify({ isActive: !tuition.isActive }),
         },
       );

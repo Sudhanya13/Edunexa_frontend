@@ -27,10 +27,20 @@ export default function SavedTuitionsPage() {
 
   const fetchSavedTuitions = useCallback(async () => {
     if (!userId) return;
+    const { data: tokenData, error: tokenError } = await authClient.token();
 
+    if (tokenError || !tokenData?.token) {
+      throw new Error(tokenError?.message || "Failed to retrieve auth token");
+    }
+    console.log(tokenData.token);
     try {
       const res = await fetch(
         `https://edunexa-server.vercel.app/saved-tuitions/student/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+        },
       );
 
       const data = await res.json();
@@ -61,14 +71,24 @@ export default function SavedTuitionsPage() {
 
   const handleRemove = async (tuitionId) => {
     if (!user?.id) return;
+    const { data: tokenData, error: tokenError } = await authClient.token();
+
+    if (tokenError || !tokenData?.token) {
+      throw new Error(tokenError?.message || "Failed to retrieve auth token");
+    }
+    console.log(tokenData.token);
 
     try {
       setRemovingId(tuitionId);
 
       const res = await fetch(
         `https://edunexa-server.vercel.app/saved-tuitions/${user.id}/${tuitionId}`,
+
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`,
+          },
         },
       );
 

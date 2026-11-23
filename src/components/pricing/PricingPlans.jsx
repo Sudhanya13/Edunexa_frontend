@@ -1,24 +1,52 @@
+//
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import {
   ArrowRight,
   BadgeCheck,
   CheckCircle2,
   Crown,
   GraduationCap,
+  ShieldAlert,
   Sparkles,
   UsersRound,
 } from "lucide-react";
 import { pricingPlansByRole } from "@/lib/pricing";
+import { useSession } from "@/lib/auth-client";
 
 export default function PricingPlans() {
+  const { data: session } = useSession();
   const [audience, setAudience] = useState("tutor");
   const plans = pricingPlansByRole[audience];
 
+  const isAdmin = session?.user?.role?.toLowerCase() === "admin";
+
+  const handleAdminBlock = (e) => {
+    e.preventDefault();
+    toast.error("Admin accounts do not need a Pro subscription.");
+  };
+
   return (
     <>
+      {isAdmin && (
+        <div
+          role="status"
+          className="mx-auto mt-6 flex max-w-2xl items-center justify-center gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 shadow-sm"
+        >
+          <ShieldAlert
+            aria-hidden="true"
+            className="size-4 shrink-0 text-amber-600"
+          />
+          <span>
+            You are signed in as an <strong>Admin</strong>. Pro plans are for
+            Tutors and Students only—checkout is disabled for admin accounts.
+          </span>
+        </div>
+      )}
+
       <div
         aria-label="Choose who the plans are for"
         className="mx-auto mt-8 inline-flex rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm"
@@ -90,12 +118,23 @@ export default function PricingPlans() {
               </li>
             ))}
           </ul>
-          <Link
-            href="/signup"
-            className="mt-7 flex h-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50/50"
-          >
-            Get Started Free
-          </Link>
+          {isAdmin ? (
+            <button
+              type="button"
+              onClick={handleAdminBlock}
+              aria-disabled="true"
+              className="mt-7 flex h-12 w-full cursor-not-allowed items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-sm font-bold text-slate-400"
+            >
+              Not Available for Admin
+            </button>
+          ) : (
+            <Link
+              href="/signup"
+              className="mt-7 flex h-12 items-center justify-center rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-800 transition hover:border-indigo-300 hover:bg-indigo-50/50"
+            >
+              Get Started Free
+            </Link>
+          )}
         </article>
 
         <article className="group relative flex flex-col overflow-hidden rounded-3xl border border-indigo-300 bg-white p-7 shadow-xl shadow-indigo-200/50 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-200/70 sm:p-8">
@@ -150,13 +189,24 @@ export default function PricingPlans() {
               </li>
             ))}
           </ul>
-          <Link
-            href={`/payments/checkout?role=${audience}`}
-            className="mt-7 flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700"
-          >
-            Upgrade to Pro
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </Link>
+          {isAdmin ? (
+            <button
+              type="button"
+              onClick={handleAdminBlock}
+              aria-disabled="true"
+              className="mt-7 flex h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-200 text-sm font-bold text-slate-500"
+            >
+              Admin Account — No Plan Needed
+            </button>
+          ) : (
+            <Link
+              href={`/payments/checkout?role=${audience}`}
+              className="mt-7 flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-bold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700"
+            >
+              Upgrade to Pro
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          )}
         </article>
       </div>
     </>

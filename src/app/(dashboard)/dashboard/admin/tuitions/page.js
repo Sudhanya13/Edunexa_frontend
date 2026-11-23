@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, X, Loader2, RefreshCw, BookOpen } from "lucide-react";
 import DashboardSection from "@/components/dashboard/shared/DashboardSection";
+import { authClient } from "@/lib/auth-client";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app";
@@ -35,9 +36,16 @@ export default function AdminTuitionsPage() {
   const [success, setSuccess] = useState("");
 
   const fetchTuitions = useCallback(async () => {
+    const { data: tokenData, error: tokenError } = await authClient.token();
+
+    if (tokenError || !tokenData?.token) {
+      throw new Error(tokenError?.message || "Failed to retrieve auth token");
+    }
     try {
       const res = await fetch(`${API_URL}/admin/tuitions`, {
-        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${tokenData.token}`,
+        },
       });
       const data = await res.json();
       if (!res.ok) {
@@ -57,18 +65,64 @@ export default function AdminTuitionsPage() {
     fetchTuitions();
   }, [fetchTuitions]);
 
+  // const handleDecision = async (tuition, nextStatus) => {
+  //   if (tokenError || !tokenData?.token) {
+  //     throw new Error(tokenError?.message || "Failed to retrieve auth token");
+  //   }
+  //   try {
+  //     setActionId(tuition._id);
+  //     setError("");
+  //     setSuccess("");
+
+  //     const res = await fetch(
+  //       `${API_URL}/admin/tuitions/${tuition._id}/approval`,
+  //       {
+  //         method: "PATCH",
+  //         credentials: "include",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ status: nextStatus }),
+  //         Authorization: `Bearer ${tokenData.token}`,
+  //       },
+  //     );
+  //     const data = await res.json();
+  //     if (!res.ok) {
+  //       throw new Error(data.message || "Action failed");
+  //     }
+
+  //     setTuitions((prev) =>
+  //       prev.map((item) =>
+  //         item._id === tuition._id
+  //           ? { ...item, status: nextStatus, approvalStatus: nextStatus }
+  //           : item,
+  //       ),
+  //     );
+  //     setSuccess(`"${tuition.title}" marked as ${nextStatus}.`);
+  //   } catch (err) {
+  //     setError(err.message);
+  //   } finally {
+  //     setActionId(null);
+  //   }
+  // };
+
   const handleDecision = async (tuition, nextStatus) => {
     try {
       setActionId(tuition._id);
       setError("");
       setSuccess("");
 
+      const { data: tokenData, error: tokenError } = await authClient.token();
+      if (tokenError || !tokenData?.token) {
+        throw new Error(tokenError?.message || "Failed to retrieve auth token");
+      }
+
       const res = await fetch(
         `${API_URL}/admin/tuitions/${tuition._id}/approval`,
         {
           method: "PATCH",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
+          },
           body: JSON.stringify({ status: nextStatus }),
         },
       );
@@ -91,7 +145,6 @@ export default function AdminTuitionsPage() {
       setActionId(null);
     }
   };
-
   const visibleTuitions = tuitions.filter((t) => {
     const current = String(
       t.status ?? t.approvalStatus ?? "pending",

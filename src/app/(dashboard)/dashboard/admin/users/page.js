@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, RefreshCw, Shield, Search } from "lucide-react";
 import DashboardSection from "@/components/dashboard/shared/DashboardSection";
+import { authClient } from "@/lib/auth-client";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app";
@@ -37,9 +38,16 @@ export default function AdminUsersPage() {
   const [success, setSuccess] = useState("");
 
   const fetchUsers = useCallback(async () => {
+    const { data: tokenData, error: tokenError } = await authClient.token();
+
+    if (tokenError || !tokenData?.token) {
+      throw new Error(tokenError?.message || "Failed to retrieve auth token");
+    }
     try {
       const res = await fetch(`${API_URL}/admin/users`, {
-        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${tokenData.token}`,
+        },
       });
       const data = await res.json();
       if (!res.ok) {

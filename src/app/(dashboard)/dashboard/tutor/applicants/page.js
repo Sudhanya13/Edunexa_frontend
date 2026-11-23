@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import {
   Users,
   Loader2,
@@ -54,9 +54,16 @@ export default function TutorApplicantsPage() {
   const [filter, setFilter] = useState("all");
 
   const fetchApplicants = useCallback(async () => {
+    const { data: tokenData, error: tokenError } = await authClient.token();
+
+    if (tokenError || !tokenData?.token) {
+      throw new Error(tokenError?.message || "Failed to retrieve auth token");
+    }
     try {
       const response = await fetch(`${API_URL}/tutor/applicants`, {
-        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${tokenData.token}`,
+        },
       });
 
       const data = await response.json();
@@ -103,13 +110,22 @@ export default function TutorApplicantsPage() {
       setError("");
       setSuccess("");
 
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/applications/${application._id}/status`,
         {
           method: "PATCH",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
           },
           body: JSON.stringify({ status }),
         },

@@ -325,6 +325,7 @@ export default function StudentApplicationsPage() {
     authClient.useSession();
 
   const user = session?.user;
+  console.log(user);
 
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -340,23 +341,43 @@ export default function StudentApplicationsPage() {
     let cancelled = false;
 
     const fetchApplications = async () => {
+      // const jwttoken = await auth.api.getToken({
+      //   headers: await headers(),
+      // });
+      // console.log(jwttoken?.token);
       try {
         setError(false);
+        const { data: tokenData, error: tokenError } = await authClient.token();
+
+        if (tokenError || !tokenData?.token) {
+          throw new Error(
+            tokenError?.message || "Failed to retrieve auth token",
+          );
+        }
+        console.log(tokenData.token);
 
         const apiUrl = (
           process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app"
         ).replace(/\/$/, "");
 
-        const res = await fetch(`${apiUrl}/applications/student/${user.id}`);
+        const res = await fetch(`${apiUrl}/applications/student/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+        });
 
         if (!res.ok) {
-          throw new Error("Failed to fetch applications");
+          const errBody = await res.text();
+          throw new Error(
+            `Failed to fetch applications (${res.status}): ${errBody}`,
+          );
         }
 
-        const data = await res.json();
+        const result = await res.json();
+        // console.log(result);
 
         if (!cancelled) {
-          setApplications(Array.isArray(data) ? data : []);
+          setApplications(Array.isArray(result) ? result : []);
         }
       } catch (err) {
         console.error("Application fetching error:", err);

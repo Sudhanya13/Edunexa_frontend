@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import {
   ArrowLeft,
   ArrowRight,
@@ -109,11 +109,22 @@ export default function TutorPostTuitionPage() {
 
     const fetchStats = async () => {
       try {
+        const { data: tokenData, error: tokenError } =
+          await authClient.token();
+
+        if (tokenError || !tokenData?.token) {
+          throw new Error(
+            tokenError?.message || "Failed to retrieve auth token",
+          );
+        }
+
         const response = await fetch(
           `${API_URL}/tuitions/my/count?email=${encodeURIComponent(user.email)}`,
           {
             method: "GET",
-            credentials: "include",
+            headers: {
+              Authorization: `Bearer ${tokenData.token}`,
+            },
           },
         );
 
@@ -250,12 +261,21 @@ export default function TutorPostTuitionPage() {
       // 1. Upload banner to ImgBB
       const bannerImage = await uploadImage();
 
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
       // 2. Submit tuition to Express backend
       const response = await fetch(`${API_URL}/tuitions`, {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenData.token}`,
         },
         body: JSON.stringify({
           ...form,
