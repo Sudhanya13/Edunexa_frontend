@@ -55,9 +55,6 @@ export default function TutorApplicantsPage() {
 
   const fetchApplicants = useCallback(async () => {
     try {
-      setLoading(true);
-      setError("");
-
       const response = await fetch(`${API_URL}/tutor/applicants`, {
         credentials: "include",
       });
@@ -68,6 +65,7 @@ export default function TutorApplicantsPage() {
         throw new Error(data.message || "Failed to fetch applicants");
       }
 
+      setError("");
       setApplicants(data);
     } catch (err) {
       setError(err.message);
@@ -89,6 +87,7 @@ export default function TutorApplicantsPage() {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Load remote data; updates occur after fetch resolves.
     fetchApplicants();
   }, [sessionLoading, user, router, fetchApplicants]);
 
@@ -238,7 +237,10 @@ export default function TutorApplicantsPage() {
           </div>
 
           <button
-            onClick={fetchApplicants}
+            onClick={() => {
+              setLoading(true);
+              fetchApplicants();
+            }}
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
             <RefreshCw className="size-4" />

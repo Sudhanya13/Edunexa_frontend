@@ -334,7 +334,6 @@ export default function StudentApplicationsPage() {
     if (isSessionLoading) return;
 
     if (!user?.id) {
-      setLoading(false);
       return;
     }
 
@@ -342,7 +341,6 @@ export default function StudentApplicationsPage() {
 
     const fetchApplications = async () => {
       try {
-        setLoading(true);
         setError(false);
 
         const apiUrl = (
@@ -416,7 +414,7 @@ export default function StudentApplicationsPage() {
     )}`;
   };
 
-  const isPageLoading = isSessionLoading || loading;
+  const isPageLoading = isSessionLoading || (Boolean(user) && loading);
 
   return (
     <div className="space-y-6">
@@ -454,7 +452,7 @@ export default function StudentApplicationsPage() {
               No Applications Yet
             </h3>
             <p className="text-sm text-slate-500 mt-2">
-              You haven't applied for any tuition posts yet.
+              You haven&apos;t applied for any tuition posts yet.
             </p>
           </div>
         ) : (

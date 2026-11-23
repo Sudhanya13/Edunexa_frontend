@@ -120,7 +120,6 @@ export default function TuitionDetailsPage() {
     if (isSessionLoading || !user?.id || !id) return;
 
     if (userRole !== "student") {
-      setHasApplied(false);
       return;
     }
 

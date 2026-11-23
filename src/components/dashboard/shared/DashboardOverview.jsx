@@ -114,7 +114,8 @@ const overviewContent = {
   },
   admin: {
     title: "Admin Dashboard",
-    description: "Overview of platform users, tuition listings, and transactions.",
+    description:
+      "Overview of platform users, tuition listings, and transactions.",
     primaryAction: {
       label: "Review Tuitions",
       href: "/dashboard/admin/tuitions",
@@ -122,7 +123,11 @@ const overviewContent = {
     },
     stats: [
       { label: "Total Users", note: "Platform user overview", icon: Users },
-      { label: "Tuitions", note: "Tuition listing overview", icon: BookOpenCheck },
+      {
+        label: "Tuitions",
+        note: "Tuition listing overview",
+        icon: BookOpenCheck,
+      },
       { label: "Transactions", note: "Transaction overview", icon: CreditCard },
       { label: "Pending Review", note: "Moderation overview", icon: Clock3 },
     ],
@@ -252,7 +257,9 @@ export default function DashboardOverview({ role, userName }) {
                     Overview
                   </span>
                 </div>
-                <p className="mt-5 text-sm font-medium text-slate-500">{label}</p>
+                <p className="mt-5 text-sm font-medium text-slate-500">
+                  {label}
+                </p>
                 <div className="mt-1 flex items-baseline justify-between gap-3">
                   <p className="text-3xl font-bold tracking-tight text-slate-900">
                     —

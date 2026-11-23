@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
@@ -71,13 +71,11 @@ export default function TutorPostTuitionPage() {
   const { data: session, isPending: sessionLoading } = useSession();
 
   const user = session?.user;
-  console.log("Current session:", session);
-  console.log("Current user:", user);
-  console.log("User role:", user?.role);
 
   const [form, setForm] = useState(initialForm);
   const [banner, setBanner] = useState(null);
   const [preview, setPreview] = useState("");
+  const previewUrlRef = useRef("");
   const [stats, setStats] = useState(null);
 
   const [loadingStats, setLoadingStats] = useState(true);
@@ -85,6 +83,15 @@ export default function TutorPostTuitionPage() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(
+    () => () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    },
+    [],
+  );
 
   // Fetch tutor posting statistics
   useEffect(() => {
@@ -102,20 +109,15 @@ export default function TutorPostTuitionPage() {
 
     const fetchStats = async () => {
       try {
-        setLoadingStats(true);
-
-        console.log("API URL:", `${API_URL}/tuitions/my/count`);
-
-        const response = await fetch(`${API_URL}/tuitions/my/count`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        console.log("Response status:", response.status);
+        const response = await fetch(
+          `${API_URL}/tuitions/my/count?email=${encodeURIComponent(user.email)}`,
+          {
+            method: "GET",
+            credentials: "include",
+          },
+        );
 
         const data = await response.json();
-
-        console.log("API response:", data);
 
         if (!response.ok) {
           throw new Error(data.message || "Unable to fetch posting statistics");
@@ -132,19 +134,6 @@ export default function TutorPostTuitionPage() {
 
     fetchStats();
   }, [sessionLoading, user, router]);
-
-  // Image preview
-  useEffect(() => {
-    if (!banner) {
-      setPreview("");
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(banner);
-    setPreview(objectUrl);
-
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [banner]);
 
   const isPro = stats?.plan === "pro";
   const limitReached = stats && !stats.canPost;
@@ -180,6 +169,12 @@ export default function TutorPostTuitionPage() {
       return;
     }
 
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+    }
+
+    previewUrlRef.current = URL.createObjectURL(file);
+    setPreview(previewUrlRef.current);
     setBanner(file);
   };
 
@@ -267,6 +262,8 @@ export default function TutorPostTuitionPage() {
           monthlyFee: Number(form.monthlyFee),
           daysPerWeek: Number(form.daysPerWeek),
           bannerImage,
+          tutorEmail: user.email,
+          tutorName: user.name,
         }),
       });
 
@@ -291,6 +288,11 @@ export default function TutorPostTuitionPage() {
 
       setForm(initialForm);
       setBanner(null);
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+        previewUrlRef.current = "";
+      }
+      setPreview("");
 
       setStats((previous) => ({
         ...previous,

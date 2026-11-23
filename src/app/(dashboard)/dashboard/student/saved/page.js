@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
@@ -19,19 +19,18 @@ export default function SavedTuitionsPage() {
     authClient.useSession();
 
   const user = session?.user;
+  const userId = user?.id;
 
   const [savedTuitions, setSavedTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState(null);
 
-  const fetchSavedTuitions = async () => {
-    if (!user?.id) return;
+  const fetchSavedTuitions = useCallback(async () => {
+    if (!userId) return;
 
     try {
-      setLoading(true);
-
       const res = await fetch(
-        `https://edunexa-server.vercel.app/saved-tuitions/student/${user.id}`,
+        `https://edunexa-server.vercel.app/saved-tuitions/student/${userId}`,
       );
 
       const data = await res.json();
@@ -49,18 +48,16 @@ export default function SavedTuitionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (isSessionLoading) return;
 
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Load remote data; updates occur after fetch resolves.
     fetchSavedTuitions();
-  }, [user?.id, isSessionLoading]);
+  }, [userId, isSessionLoading, fetchSavedTuitions]);
 
   const handleRemove = async (tuitionId) => {
     if (!user?.id) return;
@@ -93,7 +90,7 @@ export default function SavedTuitionsPage() {
     }
   };
 
-  if (isSessionLoading || loading) {
+  if (isSessionLoading || (Boolean(user) && loading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />

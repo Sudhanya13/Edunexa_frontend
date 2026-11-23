@@ -55,6 +55,9 @@ export default function MyTuitionsPage() {
   const { data: session, isPending: sessionLoading } = useSession();
 
   const user = session?.user;
+  const hasUser = Boolean(user);
+  const userEmail = user?.email;
+  const userRole = user?.role;
 
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,13 +69,15 @@ export default function MyTuitionsPage() {
   const [form, setForm] = useState(emptyForm);
 
   const fetchTuitions = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
+    if (!userEmail) return;
 
-      const response = await fetch(`${API_URL}/tuitions/my`, {
-        credentials: "include",
-      });
+    try {
+      const response = await fetch(
+        `${API_URL}/tuitions/my?email=${encodeURIComponent(userEmail)}`,
+        {
+          credentials: "include",
+        },
+      );
 
       const data = await response.json();
 
@@ -80,29 +85,31 @@ export default function MyTuitionsPage() {
         throw new Error(data.message || "Unable to fetch tuitions");
       }
 
+      setError("");
       setTuitions(data);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userEmail]);
 
   useEffect(() => {
     if (sessionLoading) return;
 
-    if (!user) {
+    if (!hasUser) {
       router.replace("/signin");
       return;
     }
 
-    if (user.role !== "tutor") {
+    if (userRole !== "tutor") {
       router.replace("/dashboard");
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Load remote data; updates occur after fetch resolves.
     fetchTuitions();
-  }, [sessionLoading, user, router, fetchTuitions]);
+  }, [sessionLoading, hasUser, userEmail, userRole, router, fetchTuitions]);
 
   const startEdit = (tuition) => {
     setEditing(tuition);
@@ -137,6 +144,11 @@ export default function MyTuitionsPage() {
       setError(
         "Title must be at least 5 characters and description at least 20 characters.",
       );
+      return;
+    }
+
+    if (form.mode !== "Online" && !form.location.trim()) {
+      setError("Location is required when mode is Offline or Both.");
       return;
     }
 
@@ -247,7 +259,7 @@ export default function MyTuitionsPage() {
     );
   }
 
-  if (!user || user.role !== "tutor") return null;
+  if (!user || userRole !== "tutor") return null;
 
   return (
     <DashboardSection
@@ -317,7 +329,9 @@ export default function MyTuitionsPage() {
 
                 <div className="space-y-4 p-5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <StatusBadge status={tuition.approvalStatus} />
+                    <StatusBadge
+                      status={tuition.status ?? tuition.approvalStatus}
+                    />
 
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-bold ${
@@ -448,12 +462,15 @@ export default function MyTuitionsPage() {
                           ? "number"
                           : "text"
                       }
-                      required={!["location"].includes(name)}
+                      required={
+                        name === "location" ? form.mode !== "Online" : true
+                      }
                       min={
                         name === "monthlyFee" || name === "daysPerWeek"
                           ? 1
                           : undefined
                       }
+                      max={name === "daysPerWeek" ? 7 : undefined}
                       className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500"
                     />
                   </div>
