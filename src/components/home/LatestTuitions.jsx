@@ -30,7 +30,7 @@ export default async function LatestTuitions() {
               <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
                 Latest Approved tuitions near you
               </h2>
-              <p>
+              <p className="mt-2">
                 Discover top-rated home and online tuition opportunities
                 verified by academic administrators.
               </p>

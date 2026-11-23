@@ -1,16 +1,13 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  Atom,
   BadgeCheck,
   BookOpen,
-  CalendarDays,
-  GraduationCap,
-  MapPin,
-  Search,
-  ShieldCheck,
+  Calculator,
+  Code2,
+  Languages,
   Sparkles,
-  Star,
-  Users,
 } from "lucide-react";
 import { pricingPlans } from "@/lib/pricing";
 import Banner from "@/components/home/Banner";
@@ -71,6 +68,89 @@ export default function Home() {
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-500">{copy}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden bg-indigo-50/60 py-20">
+        <div
+          aria-hidden="true"
+          className="absolute -left-24 top-10 size-72 rounded-full bg-violet-100/70 blur-3xl"
+        />
+        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-600">
+                Find your focus
+              </p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                Explore popular subjects
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
+                Start with a subject you love. Browse opportunities and find
+                the right tutor for your next learning goal.
+              </p>
+            </div>
+            <Link
+              href="/tuitions"
+              className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-indigo-600 transition hover:text-indigo-700"
+            >
+              Browse all subjects <ArrowRight className="size-4" />
+            </Link>
+          </div>
+
+          <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                name: "Math",
+                query: "Math",
+                description: "Build confidence with numbers and problem-solving.",
+                icon: Calculator,
+                style: "bg-blue-50 text-blue-700 ring-blue-100",
+              },
+              {
+                name: "Physics",
+                query: "Physics",
+                description: "Make the ideas behind our world easier to grasp.",
+                icon: Atom,
+                style: "bg-violet-50 text-violet-700 ring-violet-100",
+              },
+              {
+                name: "Programming",
+                query: "Programming",
+                description: "Learn coding skills and create something new.",
+                icon: Code2,
+                style: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+              },
+              {
+                name: "IELTS",
+                query: "IELTS",
+                description: "Prepare for your English-language goals.",
+                icon: Languages,
+                style: "bg-amber-50 text-amber-700 ring-amber-100",
+              },
+            ].map(({ name, query, description, icon: SubjectIcon, style }) => (
+              <Link
+                key={name}
+                href={`/tuitions?subject=${encodeURIComponent(query)}`}
+                className="group rounded-2xl border border-white bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/70"
+              >
+                <span
+                  className={`grid size-12 place-items-center rounded-xl ring-1 ${style}`}
+                >
+                  <SubjectIcon className="size-6" />
+                </span>
+                <h3 className="mt-5 text-lg font-black text-slate-900 transition group-hover:text-indigo-700">
+                  {name}
+                </h3>
+                <p className="mt-2 min-h-12 text-sm leading-6 text-slate-500">
+                  {description}
+                </p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600">
+                  Explore {name} <ArrowRight className="size-3.5" />
+                </span>
+              </Link>
             ))}
           </div>
         </div>

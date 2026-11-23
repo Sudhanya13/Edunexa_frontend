@@ -447,7 +447,7 @@ export default function StudentApplicationsPage() {
 
         <Link
           href="/tuitions"
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold transition shrink-0"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition shrink-0"
         >
           <Search className="w-4 h-4" />
           Find More Tuitions

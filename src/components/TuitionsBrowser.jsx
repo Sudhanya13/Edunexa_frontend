@@ -4,8 +4,11 @@ import { useMemo, useState } from "react";
 import { GraduationCap, Laptop, MapPin, Search, X } from "lucide-react";
 import Tuitioncard from "@/components/Tuitioncard";
 
-export default function TuitionsBrowser({ tuitions = [] }) {
-  const [subjectQuery, setSubjectQuery] = useState("");
+export default function TuitionsBrowser({
+  tuitions = [],
+  initialSubjectQuery = "",
+}) {
+  const [subjectQuery, setSubjectQuery] = useState(initialSubjectQuery);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedClassLevel, setSelectedClassLevel] = useState("");
   const [selectedMode, setSelectedMode] = useState("");

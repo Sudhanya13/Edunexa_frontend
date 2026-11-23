@@ -325,9 +325,9 @@ import { authClient } from "@/lib/auth-client";
 
 export default function Tuitioncard({ tuition }) {
   const router = useRouter();
-  const { data: session, isPending: sessionLoading } =
-    authClient.useSession();
+  const { data: session, isPending: sessionLoading } = authClient.useSession();
   const user = session?.user;
+  console.log(user);
   const userRole = user?.role?.toLowerCase();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [savingBookmark, setSavingBookmark] = useState(false);
@@ -350,8 +350,7 @@ export default function Tuitioncard({ tuition }) {
 
     const checkBookmark = async () => {
       try {
-        const { data: tokenData, error: tokenError } =
-          await authClient.token();
+        const { data: tokenData, error: tokenError } = await authClient.token();
 
         if (tokenError || !tokenData?.token) return;
 
@@ -394,13 +393,10 @@ export default function Tuitioncard({ tuition }) {
 
     try {
       setSavingBookmark(true);
-      const { data: tokenData, error: tokenError } =
-        await authClient.token();
+      const { data: tokenData, error: tokenError } = await authClient.token();
 
       if (tokenError || !tokenData?.token) {
-        throw new Error(
-          tokenError?.message || "Failed to retrieve auth token",
-        );
+        throw new Error(tokenError?.message || "Failed to retrieve auth token");
       }
 
       const response = await fetch(
@@ -481,9 +477,7 @@ export default function Tuitioncard({ tuition }) {
           aria-label={
             isBookmarked ? "Remove tuition from saved list" : "Save tuition"
           }
-          title={
-            isBookmarked ? "Remove from saved tuitions" : "Save tuition"
-          }
+          title={isBookmarked ? "Remove from saved tuitions" : "Save tuition"}
           className={`absolute right-3 top-3 grid size-9 place-items-center rounded-full shadow-md transition disabled:opacity-60 ${
             isBookmarked
               ? "bg-indigo-600 text-white"

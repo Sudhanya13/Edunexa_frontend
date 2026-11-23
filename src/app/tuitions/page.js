@@ -2,7 +2,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import TuitionsBrowser from "@/components/TuitionsBrowser";
 
-export default async function TuitionsPage() {
+export default async function TuitionsPage({ searchParams }) {
+  const { subject } = await searchParams;
   const response = await fetch(
     "https://edunexa-server.vercel.app/all-tuitions",
     {
@@ -27,7 +28,12 @@ export default async function TuitionsPage() {
           Back to home
         </Link>
 
-        <TuitionsBrowser tuitions={Array.isArray(data) ? data : []} />
+        <TuitionsBrowser
+          tuitions={Array.isArray(data) ? data : []}
+          initialSubjectQuery={
+            Array.isArray(subject) ? (subject[0] ?? "") : (subject ?? "")
+          }
+        />
       </div>
     </main>
   );
