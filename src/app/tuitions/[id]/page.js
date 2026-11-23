@@ -47,8 +47,18 @@ export default function TuitionDetailsPage() {
 
     const checkBookmark = async () => {
       try {
+        const { data: tokenData, error: tokenError } =
+          await authClient.token();
+
+        if (tokenError || !tokenData?.token) return;
+
         const res = await fetch(
           `https://edunexa-server.vercel.app/saved-tuitions/student/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenData.token}`,
+            },
+          },
         );
 
         if (!res.ok) {
@@ -125,8 +135,18 @@ export default function TuitionDetailsPage() {
 
     const checkApplication = async () => {
       try {
+        const { data: tokenData, error: tokenError } =
+          await authClient.token();
+
+        if (tokenError || !tokenData?.token) return;
+
         const res = await fetch(
           `https://edunexa-server.vercel.app/applications/check/${user.id}/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenData.token}`,
+            },
+          },
         );
 
         if (!res.ok) {
@@ -152,6 +172,14 @@ export default function TuitionDetailsPage() {
 
     try {
       setSavingBookmark(true);
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
 
       // Remove bookmark
       if (isBookmarked) {
@@ -159,6 +187,9 @@ export default function TuitionDetailsPage() {
           `https://edunexa-server.vercel.app/saved-tuitions/${user.id}/${id}`,
           {
             method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${tokenData.token}`,
+            },
           },
         );
 
@@ -182,6 +213,7 @@ export default function TuitionDetailsPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
           },
           body: JSON.stringify({
             studentId: user.id,
@@ -241,10 +273,22 @@ export default function TuitionDetailsPage() {
 
     try {
       setSubmitting(true);
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
+      const applicationTutorEmail =
+        tuition.tutorEmail || tuition.mentor?.email;
+
       const payload = {
         tuitionId: tuition._id || id,
         tuitionTitle: tuition.title,
-        tutorEmail: tuition.tutorEmail || tuition.mentor?.email,
+        tutorEmail: applicationTutorEmail,
         studentId: user.id,
         studentName: user.name,
         studentEmail: user.email,
@@ -254,14 +298,18 @@ export default function TuitionDetailsPage() {
         status: "Pending",
       };
 
-      const res = await fetch(
-        "https://edunexa-server.vercel.app/applications",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+      const apiUrl = (
+        process.env.NEXT_PUBLIC_API_URL || "https://edunexa-server.vercel.app"
+      ).replace(/\/$/, "");
+
+      const res = await fetch(`${apiUrl}/applications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenData.token}`,
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
       if (!res.ok) {
         const errData = await res.json();

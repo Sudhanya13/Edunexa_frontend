@@ -1,3 +1,5 @@
+"use client";
+
 // // "use client";
 
 // // import React, { useEffect, useState } from "react";
@@ -305,19 +307,31 @@
 //     </article>
 //   );
 // }
-import React from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import Image from "next/image";
 import {
   ArrowRight,
   Bookmark,
   CalendarDays,
   Globe,
+  Loader2,
   MapPin,
   UserRound,
 } from "lucide-react";
-import Image from "next/image";
+import { authClient } from "@/lib/auth-client";
 
 export default function Tuitioncard({ tuition }) {
+  const router = useRouter();
+  const { data: session, isPending: sessionLoading } =
+    authClient.useSession();
+  const user = session?.user;
+  const userRole = user?.role?.toLowerCase();
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [savingBookmark, setSavingBookmark] = useState(false);
+
   const {
     _id,
     title,
@@ -330,6 +344,103 @@ export default function Tuitioncard({ tuition }) {
     schedule,
     monthlyFee,
   } = tuition;
+
+  useEffect(() => {
+    if (sessionLoading || userRole !== "student" || !user?.id || !_id) return;
+
+    const checkBookmark = async () => {
+      try {
+        const { data: tokenData, error: tokenError } =
+          await authClient.token();
+
+        if (tokenError || !tokenData?.token) return;
+
+        const response = await fetch(
+          `https://edunexa-server.vercel.app/saved-tuitions/student/${user.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenData.token}`,
+            },
+          },
+        );
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        setIsBookmarked(
+          (data.savedTuitions || []).some(
+            (item) => String(item.tuitionId) === String(_id),
+          ),
+        );
+      } catch {
+        setIsBookmarked(false);
+      }
+    };
+
+    checkBookmark();
+  }, [sessionLoading, userRole, user?.id, _id]);
+
+  const handleBookmark = async () => {
+    if (!user) {
+      toast.error("Please sign in as a student to save tuitions.");
+      router.push("/signin");
+      return;
+    }
+
+    if (userRole !== "student") {
+      toast.error("Only student accounts can save tuitions.");
+      return;
+    }
+
+    try {
+      setSavingBookmark(true);
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          tokenError?.message || "Failed to retrieve auth token",
+        );
+      }
+
+      const response = await fetch(
+        isBookmarked
+          ? `https://edunexa-server.vercel.app/saved-tuitions/${user.id}/${_id}`
+          : "https://edunexa-server.vercel.app/saved-tuitions",
+        {
+          method: isBookmarked ? "DELETE" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+          body: isBookmarked
+            ? undefined
+            : JSON.stringify({
+                studentId: user.id,
+                studentEmail: user.email,
+                tuitionId: _id,
+              }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update saved tuition");
+      }
+
+      setIsBookmarked((previous) => !previous);
+      toast.success(
+        isBookmarked
+          ? "Tuition removed from saved list"
+          : "Tuition added to saved list",
+      );
+    } catch (error) {
+      toast.error(error.message || "Failed to update saved tuition");
+    } finally {
+      setSavingBookmark(false);
+    }
+  };
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-slate-200/60">
@@ -365,10 +476,28 @@ export default function Tuitioncard({ tuition }) {
         {/* Bookmark */}
         <button
           type="button"
-          aria-label="Bookmark tuition"
-          className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white text-slate-700 shadow-md transition hover:bg-teal-500 hover:text-white"
+          onClick={handleBookmark}
+          disabled={savingBookmark || sessionLoading}
+          aria-label={
+            isBookmarked ? "Remove tuition from saved list" : "Save tuition"
+          }
+          title={
+            isBookmarked ? "Remove from saved tuitions" : "Save tuition"
+          }
+          className={`absolute right-3 top-3 grid size-9 place-items-center rounded-full shadow-md transition disabled:opacity-60 ${
+            isBookmarked
+              ? "bg-indigo-600 text-white"
+              : "bg-white text-slate-700 hover:bg-indigo-600 hover:text-white"
+          }`}
         >
-          <Bookmark size={17} />
+          {savingBookmark ? (
+            <Loader2 size={17} className="animate-spin" />
+          ) : (
+            <Bookmark
+              size={17}
+              className={isBookmarked ? "fill-current" : ""}
+            />
+          )}
         </button>
       </div>
 

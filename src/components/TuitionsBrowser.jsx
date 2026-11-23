@@ -1,18 +1,30 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MapPin, Search, X } from "lucide-react";
+import { GraduationCap, Laptop, MapPin, Search, X } from "lucide-react";
 import Tuitioncard from "@/components/Tuitioncard";
 
 export default function TuitionsBrowser({ tuitions = [] }) {
   const [subjectQuery, setSubjectQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedClassLevel, setSelectedClassLevel] = useState("");
+  const [selectedMode, setSelectedMode] = useState("");
 
   const locations = useMemo(() => {
     const unique = new Set();
     tuitions.forEach((item) => {
       if (typeof item?.location === "string" && item.location.trim()) {
         unique.add(item.location.trim());
+      }
+    });
+    return Array.from(unique).sort((a, b) => a.localeCompare(b));
+  }, [tuitions]);
+
+  const classLevels = useMemo(() => {
+    const unique = new Set();
+    tuitions.forEach((item) => {
+      if (typeof item?.classLevel === "string" && item.classLevel.trim()) {
+        unique.add(item.classLevel.trim());
       }
     });
     return Array.from(unique).sort((a, b) => a.localeCompare(b));
@@ -39,20 +51,49 @@ export default function TuitionsBrowser({ tuitions = [] }) {
         !selectedLocation ||
         itemLocation.toLowerCase() === selectedLocation.toLowerCase();
 
-      return matchesSubject && matchesLocation;
-    });
-  }, [tuitions, subjectQuery, selectedLocation]);
+      const itemClassLevel = String(item?.classLevel ?? "").trim();
+      const matchesClassLevel =
+        !selectedClassLevel ||
+        itemClassLevel.toLowerCase() === selectedClassLevel.toLowerCase();
 
-  const hasActiveFilters = Boolean(subjectQuery.trim() || selectedLocation);
+      const itemMode = String(item?.mode ?? "").trim().toLowerCase();
+      const matchesMode =
+        !selectedMode ||
+        itemMode === selectedMode.toLowerCase() ||
+        itemMode === "both";
+
+      return (
+        matchesSubject &&
+        matchesLocation &&
+        matchesClassLevel &&
+        matchesMode
+      );
+    });
+  }, [
+    tuitions,
+    subjectQuery,
+    selectedLocation,
+    selectedClassLevel,
+    selectedMode,
+  ]);
+
+  const hasActiveFilters = Boolean(
+    subjectQuery.trim() ||
+      selectedLocation ||
+      selectedClassLevel ||
+      selectedMode,
+  );
 
   const handleReset = () => {
     setSubjectQuery("");
     setSelectedLocation("");
+    setSelectedClassLevel("");
+    setSelectedMode("");
   };
 
   return (
     <>
-      <div className="mt-8 flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm md:flex-row md:items-center md:p-7">
+      <div className="mt-8 flex flex-col gap-4 rounded-3xl bg-white p-5 shadow-sm md:flex-row md:flex-wrap md:items-center md:p-7">
         <div className="relative flex flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
           <Search className="size-5 shrink-0 text-slate-400" />
           <input
@@ -89,6 +130,37 @@ export default function TuitionsBrowser({ tuitions = [] }) {
                 {loc}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 md:w-64">
+          <GraduationCap className="size-5 shrink-0 text-slate-400" />
+          <select
+            value={selectedClassLevel}
+            onChange={(e) => setSelectedClassLevel(e.target.value)}
+            aria-label="Choose class level"
+            className="w-full bg-transparent text-sm text-slate-700 focus:outline-none"
+          >
+            <option value="">All class levels</option>
+            {classLevels.map((classLevel) => (
+              <option key={classLevel} value={classLevel}>
+                {classLevel}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 md:w-64">
+          <Laptop className="size-5 shrink-0 text-slate-400" />
+          <select
+            value={selectedMode}
+            onChange={(e) => setSelectedMode(e.target.value)}
+            aria-label="Choose tuition mode"
+            className="w-full bg-transparent text-sm text-slate-700 focus:outline-none"
+          >
+            <option value="">All modes</option>
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
           </select>
         </div>
 
@@ -134,7 +206,7 @@ export default function TuitionsBrowser({ tuitions = [] }) {
               No matching tuitions found
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              Try adjusting your subject keyword or location filter.
+              Try adjusting your subject, location, class level, or mode filter.
             </p>
             {hasActiveFilters && (
               <button
