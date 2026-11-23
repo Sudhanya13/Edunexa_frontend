@@ -28,6 +28,18 @@ export const auth = betterAuth({
         input: false,
         defaultValue: "inactive",
       },
+      phone: {
+        type: "string",
+        required: false,
+        input: true,
+        defaultValue: "",
+      },
+      bio: {
+        type: "string",
+        required: false,
+        input: true,
+        defaultValue: "",
+      },
       stripeCustomerId: {
         type: "string",
         input: false,
